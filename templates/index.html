@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+    <title>Propietarios</title>
+  </head>
+  <body class="d-flex flex-column min-vh-100" >
+     <!-- Contenido principal -->
+    <main class="flex-grow-1">
+      <div class="container-fluid my-5">
+          <div class="container-fluid mt-4">
+            <div class="row justify-content-center">
+              <div class="col-lg-8 col-md-10 col-sm-12">
+                <h3 class="text-center mb-4">Sistema de Gestión de Multas (SGM)</h3>
+      
+                <!-- Tabla Propietarios -->
+                <div class="table-responsive">
+                  <div class="d-flex justify-content-between align-items-center">
+                      <p class="fw-medium fs-4">Propietarios</p>
+                      <button class="btn btn-md btn-warning"  onclick="mostrarAgregar()">Agregar Propietario</button>
+                  </div>
+                  <table class="table table-striped table-hover table-bordered w-100" id="tablaPropietarios">
+                    <thead class="table-dark">
+                      <tr>
+                        <th scope="col">Codigo_id</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Apellido</th>
+                        <th scope="col">DNI</th>
+                        <th scope="col">Dirección</th>
+                        <th scope="col">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for propietario in propietario %}
+                      <tr>
+                        <th scope="row">{{propietario.codigo_id}}</th>
+                        <td>{{propietario.nombre}}</td>
+                        <td>{{propietario.apellido}}</td>
+                        <td>{{propietario.dni}}</td>
+                        <td>{{propietario.direccion}}</td>
+                        <td>
+                          <button class="btn btn-sm btn-success" onclick="mostrarDetalles('{{propietario.codigo_id}}')">Ver</button>
+                          <button class="btn btn-sm btn-primary">Editar</button>
+                          <button class="btn btn-sm btn-danger">Eliminar</button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <div>Total de Registros: {{total_prop}}</div>
+      
+      
+                <!-- Sección de detalles (inicialmente oculta) -->
+                  <div id="seccionDetalles" class="card mt-4" style="display: none;">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                          <h5 class="mb-0">Detalles de Propietario</h5>
+                          <button class="btn btn-sm btn-outline-secondary" onclick="ocultarDetalles()">✕ Cerrar</button>
+                      </div>
+                      <div class="card-body">
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <p><strong>Codigo Propietario:</strong> <span id="detalle-id"></span></p>
+                                  <p><strong>Nombre:</strong> <span id="detalle-nombre"></span></p>
+                                  <p><strong>Apellido:</strong> <span id="detalle-apellido"></span></p>
+                              </div>
+                              <div class="col-md-6">
+                                  <p><strong>DNI:</strong> <span id="detalle-dni"></span></p>
+                                  <p><strong>Direccion:</strong> <span id="detalle-direccion"></span></p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="container-fluid mt-4">
+              <div class="row justify-content-center">
+                  <div class="col-lg-6 col-md-8 col-sm-12">
+                      <div id="seccionAgregarP" style="display: none;">
+                          <p class="fw-medium fs-4">Agregar Propietario</p>
+                          
+                          <!-- Formulario con estilo Bootstrap -->
+                          <div class="card">
+                              <div class="card-header d-flex justify-content-between align-items-center">
+                                  <h5 class="mb-0">Datos del Propietario</h5>
+                                  <button class="btn btn-sm btn-outline-secondary" onclick="ocultarAgregar()">✕ Cerrar</button>
+                              </div>
+                              <div class="card-body">
+                                  <form id="formPropietario" method="POST" onsubmit="enviarFormulario(event)">
+                                      {{forma.csrf_token}}
+                                      <!-- Campo Nombre -->
+                                      <div class="mb-3">
+      
+                                          {{forma.nombre.label(class="form-label")}} <span class="text-danger">*</span>
+                                          {{forma.nombre(class="form-control")}}
+                                          <div class="invalid-feedback">
+                                              Por favor ingrese un nombre válido.
+                                          </div>
+                                      </div>                               
+                                      <!-- Campo Apellido -->
+                                      <div class="mb-3">
+      
+                                          {{forma.apellido.label(class="form-label")}} <span class="text-danger">*</span>
+                                          {{forma.apellido(class="form-control")}}
+                                          <div class="invalid-feedback">
+                                              Por favor ingrese un apellido válido.
+                                          </div>
+                                      </div>                               
+                                      <!-- Campo DNI -->
+                                      <div class="mb-3">
+                                          {{forma.dni.label(class="form-label")}} <span class="text-danger">*</span>
+                                          {{forma.dni(class="form-control", maxlength=20)}}
+                                          <div class="form-text">Ingrese el número de documento sin puntos ni espacios.</div>
+                                          <div class="invalid-feedback">
+                                              Por favor ingrese un DNI válido.
+                                          </div>
+                                      </div>
+                                      <!-- Campo Dirección -->
+                                      <div class="mb-3">
+      
+                                          {{forma.direccion.label(class="form-label")}} <span class="text-danger">*</span>
+                                          {{forma.direccion(class="form-control")}}
+                                          <div class="invalid-feedback">
+                                              Por favor ingrese un apellido válido.
+                                          </div>
+                                      </div>                               
+      
+                                      <!-- Flask-WTF automáticamente añade:
+                                      ✅ id="dni" (basado en el nombre del campo)
+                                      ✅ name="dni" (basado en el nombre del campo)
+                                      ✅ required (por el validador DataRequired())
+                                      ✅ type="text" (por ser StringField) 
+                                      Si necesitas personalizar el ID o name:
+                                      <!-- Para cambiar el ID -->
+                                      <!-- {{forma.dni(class="form-control", id="documento")}} -->
+      
+                                      <!-- Para cambiar el name -->
+                                      <!-- {# {{forma.dni(class="form-control", name="documento_identidad")}} #}}-->
+                                      <!-- Botones -->
+                                      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                          <button type="button" class="btn btn-secondary me-md-2" onclick="limpiarFormulario()">Limpiar</button>
+                                          {{forma.enviar}}
+                                      </div>
+                                  </form>
+                              </div>
+                          </div>
+                      </div>
+                      
+      
+                      <!-- Mensajes dinámicos -->
+                      <div class="alert alert-success mt-3 d-none" id="mensajeExito">
+                          <strong>¡Éxito!.</strong> <span id="textoExito"></span>
+                      </div>
+                      <div class="alert alert-danger mt-3 d-none" id="mensajeError">
+                          <strong>Error:</strong> <span id="textoError"></span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        
+      </div>
+    </main>
+     <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-auto">
+        <div class="container">
+        <p class="mb-0">© 2025 SGM - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+        <!-- JavaScript para mostrar/ocultar detalles -->
+<script>
+    function mostrarDetalles(id) {
+        fetch(`/ver/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            // Usar los datos que llegan del servidor (data.campo)
+            document.getElementById("detalle-id").textContent = data.codigo_id;
+            document.getElementById("detalle-nombre").textContent = data.nombre;
+            document.getElementById("detalle-apellido").textContent = data.apellido;
+            document.getElementById("detalle-dni").textContent = data.dni;
+            document.getElementById("detalle-direccion").textContent = data.direccion;
+
+            // Mostrar la sección
+            document.getElementById("seccionDetalles").style.display = "block";
+
+            // Scroll suave hacia la sección
+            document
+            .getElementById("seccionDetalles")
+            .scrollIntoView({ behavior: "smooth" });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los detalles');
+        });
+    }
+
+    function ocultarDetalles() {
+        document.getElementById("seccionDetalles").style.display = "none";
+    }
+</script>
+    <!-- JavaScript para manejar seccion Agregar Propietario -->
+<script>
+    function mostrarAgregar() {
+        document .getElementById("seccionAgregarP").style.display = "block"
+    }
+    
+    function ocultarAgregar() {
+        document .getElementById("seccionAgregarP").style.display = "none"
+    }
+
+    function enviarFormulario(event) {
+        event.preventDefault(); // Evita que se recargue la página
+        
+        // Ocultar mensajes previos
+        document.getElementById('mensajeExito').classList.add('d-none');
+        document.getElementById('mensajeError').classList.add('d-none');
+        
+        // Obtener datos del formulario
+        const formData = new FormData(event.target);
+        
+        // Deshabilitar botón mientras se envía
+        const btnEnviar = event.target.querySelector('[type="submit"]');
+        const textoOriginal = btnEnviar.innerHTML;
+        btnEnviar.disabled = true;
+        btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
+        
+        // Enviar con AJAX
+        fetch('/agregar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en el servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const propietario = data.propietario;
+                agregarFilaTabla(propietario);
+                // Mostrar mensaje de éxito
+                document.getElementById('textoExito').textContent = data.error || 'El propietario ha sido agregado correctamente.';
+                document.getElementById('mensajeExito').classList.remove('d-none');
+                limpiarFormulario();
+            } else {
+                // Mostrar error del servidor
+                document.getElementById('textoError').textContent = data.error || 'Error desconocido';
+                document.getElementById('mensajeError').classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            // Mostrar error de conexión
+            document.getElementById('textoError').textContent = 'Error de conexión. Intente nuevamente.';
+            document.getElementById('mensajeError').classList.remove('d-none');
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // Rehabilitar botón
+            btnEnviar.disabled = false;
+            btnEnviar.innerHTML = textoOriginal;
+        });
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('nombre').value = '';
+        document.getElementById('apellido').value = '';
+        document.getElementById('dni').value = '';
+        document.getElementById('direccion').value = '';
+        
+        
+        // Remover clases de validación si las hay
+        const form = document.querySelector('form');
+        form.classList.remove('was-validated');
+        
+        // Ocultar mensajes
+        // document.getElementById('mensajeExito').classList.add('d-none');
+        // document.getElementById('mensajeError').classList.add('d-none');
+    }
+
+    // Validación Bootstrap al enviar
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            const forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    function agregarFilaTabla(propietario) {
+        const tabla = document.getElementById('tablaPropietarios').querySelector('tbody');
+        const fila = document.createElement('tr');
+
+        fila.innerHTML = `
+            <td scope="row">${propietario.codigo_id}</td>
+            <td>${propietario.nombre}</td>
+            <td>${propietario.apellido}</td>
+            <td>${propietario.dni}</td>
+            <td>${propietario.direccion}</td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="mostrarDetalles('${propietario.codigo_id}')">Ver</button>
+                <button class="btn btn-sm btn-primary">Editar</button>
+                <button class="btn btn-sm btn-danger">Eliminar</button>
+             </td>
+        `;
+
+        tabla.appendChild(fila);
+}
+</script>
+
+    <!-- Bootstrap 5.3.2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  </body>
+</html>
