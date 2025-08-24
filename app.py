@@ -115,5 +115,19 @@ def agregar():
     return jsonify({'success': False, 'error': 'Formulario inválido'}), 400
     # return render_template('index.html', forma=forma) no se usa ya que rabajams con AJAX
 
+@app.route('/editar/<int:id>')
+def editar(id):
+    propietario = Propietario.query.get_or_404(id)
+    app.logger.debug(f'Nombre -----> {propietario.nombre} - {propietario.apellido}')
+    # Retorna JSON en lugar de HTML
+    return {
+        'codigo_id': propietario.codigo_id,
+        'nombre': propietario.nombre,
+        'apellido': propietario.apellido,
+        'dni': propietario.dni,
+        'direccion': propietario.direccion
+    }
+
+
 if __name__== '__main__':
     app.run(debug=True)
