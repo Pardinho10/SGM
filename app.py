@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_migrate import Migrate
 from models import Propietario
 from databases import db
@@ -115,6 +115,24 @@ def agregar():
     return jsonify({'success': False, 'error': 'Formulario inválido'}), 400
     # return render_template('index.html', forma=forma) no se usa ya que rabajams con AJAX
 
+    
+#EDITAR PROPIETARIO
+""" 
+@app.route('/editar/<int:id>')
+def editar(id):
+    propietario = Propietario.query.get_or_404(id)
+    propietarioForm = PropietarioForm(obj=propietario)
+     if request.method == 'POST':
+         if propietarioForm.validate_on_submit():
+             propietarioForm.populate_obj(propietario)
+             app.logger.debug(f'Persona a actualizar: {propietario}')
+             #insertamos registro
+             db.session.commit()
+    # return redirect(url_for('inicio'))
+    return render_template('index.html', forma=propietarioForm)
+
+ """
+
 @app.route('/editar/<int:id>')
 def editar(id):
     propietario = Propietario.query.get_or_404(id)
@@ -128,6 +146,42 @@ def editar(id):
         'direccion': propietario.direccion
     }
 
+@app.route('/editar/<int:id>', methods=['POST', 'PUT'])
+def actualizar(id):
+    propietario = Propietario.query.get_or_404(id)
+    forma = PropietarioForm(request.form)
+
+    if forma.validate_on_submit():
+        try:
+            propietario.nombre = forma.nombre.data
+            propietario.apellido = forma.apellido.data
+            propietario.dni = forma.dni.data
+            propietario.direccion = forma.direccion.data
+            db.session.commit()
+            return jsonify({
+                'success': True,
+                'propietario': {
+                    'codigo_id': propietario.codigo_id,
+                    'nombre': propietario.nombre,
+                    'apellido': propietario.apellido,
+                    'dni': propietario.dni,
+                    'direccion': propietario.direccion
+                }
+            })
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(e)}), 500
+    
+    # Si la validación falla, retorna los errores del formulario
+    return jsonify({'success': False, 'error': 'Formulario inválido', 'errors': forma.errors}), 400
+
+@app.route('/eliminar/<int:id>')
+def eliminar(id):
+    propietario = Propietario.query.get_or_404(id)
+    app.logger.debug(f'Nombre -----> {propietario.nombre} - {propietario.apellido}')
+    db.session.delete(propietario)
+    db.session.commit()
+    return redirect(url_for('inicio'))
 
 if __name__== '__main__':
     app.run(debug=True)

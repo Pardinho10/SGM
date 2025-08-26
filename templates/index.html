@@ -39,16 +39,19 @@
                     </thead>
                     <tbody>
                       {% for propietario in propietario %}
-                      <tr>
+                      <tr data-id="{{propietario.codigo_id}}">
                         <th scope="row">{{propietario.codigo_id}}</th>
                         <td>{{propietario.nombre}}</td>
                         <td>{{propietario.apellido}}</td>
                         <td>{{propietario.dni}}</td>
                         <td>{{propietario.direccion}}</td>
+                        <!-- Sin AJAX -->
+                        <!-- <td><a href="eliminar/{{propietario.direccion}}">Borrar</a></td> -->
+
                         <td>
                           <button class="btn btn-sm btn-success" onclick="mostrarDetalles('{{propietario.codigo_id}}')">Ver</button>
-                          <button class="btn btn-sm btn-primary" onclick="editarDetalles('{{propietario.codigo_id}}')">Editar</button>
-                          <button class="btn btn-sm btn-danger">Eliminar</button>
+                          <button class="btn btn-sm btn-primary" onclick="iniciarEdicion('{{propietario.codigo_id}}')">Editar</button>
+                          <button class="btn btn-sm btn-danger" onclick="eliminarPropietario('{{propietario.codigo_id}}')">Eliminar</button>
                         </td>
                       </tr>
                       {% endfor %}
