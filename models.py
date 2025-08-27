@@ -1,11 +1,12 @@
 from databases import db
 
 class Propietario(db.Model):
-    codigo_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    __tablename__ = 'propietario'
+    codigo_id = db.Column(db.Integer, primary_key=True, autoincrement=False)
     nombre = db.Column(db.String(50), nullable=False)
     apellido = db.Column(db.String(50), nullable=False)
     dni = db.Column(db.String(20), nullable=False, unique=True)
-    direccion = db.Column(db.String(200))
+    direccion = db.Column(db.String(200), nullable=False)
 
     def __str__(self):
         return (

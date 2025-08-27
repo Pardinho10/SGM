@@ -1,30 +1,62 @@
-// <!-- JavaScript para mostrar/ocultar detalles -->
+// Variable global para almacenar el ID del propietario en modo de edición.
+let idPropietarioEditando = null;
 
+/**
+ * Renumera de forma visual las filas de la tabla de propietarios.
+ * Esto asegura que la columna 'N°' siempre sea consecutiva.
+ */
+function renumerarFilas() {
+  const filas = document.querySelectorAll("#tablaPropietarios tbody tr");
+  filas.forEach((fila, index) => {
+    const celda = fila.querySelector(".numero-fila");
+    if (celda) {
+      celda.textContent = index + 1;
+    }
+  });
+}
+
+/**
+ * Actualiza el contador total de registros en la página.
+ * Cuenta las filas de la tabla y actualiza el elemento HTML correspondiente.
+ */
+function actualizarTotalRegistros() {
+  const totalFilas = document.querySelectorAll("#tablaPropietarios tbody tr").length;
+  const elementoTotal = document.getElementById("total-registros");
+
+  if (elementoTotal) {
+    elementoTotal.textContent = totalFilas;
+  }
+}
+
+// Llama a la función de renumerar filas cuando la página ha cargado por completo.
+document.addEventListener("DOMContentLoaded", function () {
+  renumerarFilas();
+});
+
+/**
+ * Muestra la sección de detalles de un propietario y carga sus datos.
+ * @param {string} id - El ID del propietario a mostrar.
+ */
 function mostrarDetalles(id) {
   fetch(`/ver/${id}`)
     .then((response) => response.json())
     .then((data) => {
-      
-      // Asignar los valores a las constantes
+      // Asigna los datos a los elementos HTML de la sección de detalles.
       const detalleId = document.getElementById("detalle-id");
       const detalleNombre = document.getElementById("detalle-nombre");
       const detalleApellido = document.getElementById("detalle-apellido");
       const detalleDni = document.getElementById("detalle-dni");
       const detalleDierccio = document.getElementById("detalle-direccion");
 
-      // Verificar si los elementos existen antes de asignar el valor
-      if(detalleId) detalleId.textContent = data.codigo_id;
-      if(detalleNombre) detalleNombre.textContent = data.nombre;
-      if(detalleApellido) detalleApellido.textContent = data.apellido;
-      if(detalleDni) detalleDni.textContent = data.dni;
-      if(detalleDierccio) detalleDierccio.textContent = data.direccion;
-      // Mostrar la sección
+      if (detalleId) detalleId.textContent = data.codigo_id;
+      if (detalleNombre) detalleNombre.textContent = data.nombre;
+      if (detalleApellido) detalleApellido.textContent = data.apellido;
+      if (detalleDni) detalleDni.textContent = data.dni;
+      if (detalleDierccio) detalleDierccio.textContent = data.direccion;
+      
+      // Muestra la sección y se desplaza suavemente hacia ella.
       document.getElementById("seccionDetalles").style.display = "block";
-
-      // Scroll suave hacia la sección
-      document
-        .getElementById("seccionDetalles")
-        .scrollIntoView({ behavior: "smooth" });
+      document.getElementById("seccionDetalles").scrollIntoView({ behavior: "smooth" });
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -32,75 +64,55 @@ function mostrarDetalles(id) {
     });
 }
 
+/**
+ * Oculta la sección de detalles del propietario.
+ */
 function ocultarDetalles() {
   document.getElementById("seccionDetalles").style.display = "none";
 }
 
-// <!-- JavaScript para manejar seccion Editar  Propietario -->
+/**
+ * Muestra el formulario para agregar un nuevo propietario.
+ */
+function mostrarAgregar() {
+  document.getElementById("seccionAgregarP").style.display = "block";
+}
 
-/* function editarDetalles(id) {
-  fetch(`/editar/${id}`)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      // Usar los datos que llegan del servidor (data.campo)
-      // document.getElementById("edit-id").value = data.codigo_id;
-      const editNombre = document.getElementById("edit-nombre");
-      const editApellido = document.getElementById("edit-apellido");
-      const editDni = document.getElementById("edit-dni");
-      const editDireccion = document.getElementById("edit-direccion");
+/**
+ * Oculta el formulario para agregar o editar un propietario.
+ */
+function ocultarAgregar() {
+  document.getElementById("seccionAgregarP").style.display = "none";
+}
 
-      if (editNombre) editNombre.value = data.nombre;
-      if (editApellido) editApellido.value = data.apellido;
-      if (editDni) editDni.value = data.dni;
-      if (editDireccion) editDireccion.value = data.direccion;
-
-      // Mostrar la sección
-      document.getElementById("seccionAgregarP").style.display = "block";
-
-      // Scroll suave hacia la sección
-      document
-        .getElementById("seccionAgregarP")
-        .scrollIntoView({ behavior: "smooth" });
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("Error al cargar los detalles");
-    });
-} */
-// Variable global para almacenar el ID en modo edición
-let idPropietarioEditando = null;
-
-// Función para mostrar el formulario y cargar los datos del propietario
+/**
+ * Inicia el proceso de edición, cargando los datos del propietario en el formulario.
+ * @param {string} id - El ID del propietario a editar.
+ */
 function iniciarEdicion(id) {
   idPropietarioEditando = id;
-
-  // Establecer el modo del formulario a 'editar'
   const formPropietario = document.getElementById("formPropietario");
   if (formPropietario) {
     formPropietario.setAttribute("data-modo", "editar");
   }
 
-  // Mostrar la sección del formulario
   const seccionFormulario = document.getElementById("seccionAgregarP");
   if (seccionFormulario) {
     seccionFormulario.style.display = "block";
     seccionFormulario.scrollIntoView({ behavior: "smooth" });
   }
 
-  // Cargar los datos del propietario desde el servidor
   fetch(`/editar/${id}`)
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-
-      // Asignar los valores a las constantes
+      const editCodigoId = document.getElementById("edit-codigo-id");
       const editNombre = document.getElementById("edit-nombre");
       const editApellido = document.getElementById("edit-apellido");
       const editDni = document.getElementById("edit-dni");
       const editDireccion = document.getElementById("edit-direccion");
 
-      // Verificar si los elementos existen antes de asignar el valor
+      if (editCodigoId) editCodigoId.value = data.codigo_id;
       if (editNombre) editNombre.value = data.nombre;
       if (editApellido) editApellido.value = data.apellido;
       if (editDni) editDni.value = data.dni;
@@ -111,51 +123,18 @@ function iniciarEdicion(id) {
       alert("Error al cargar los datos del propietario para editar.");
     });
 }
-// <!-- JavaScript para manejar seccion Agregar Propietario -->
 
-function mostrarAgregar() {
-  document.getElementById("seccionAgregarP").style.display = "block";
-}
-
-function ocultarAgregar() {
-  document.getElementById("seccionAgregarP").style.display = "none";
-}
-
-// <!-- JavaScript para eliminar propietario -->
-
-function eliminarPropietario(id) {
-  if (confirm("Estas seguro de eliminar este registro?" )) {
-    let url = `/eliminar/${id}`
-    let method = 'DELETE'
-    fetch(url, {
-      method: method,
-    })
-    .then((response) => {      
-      if (!response.ok) {
-        throw new Error("Error en el servidor");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.success) {
-        
-      }
-    })
-    
-  }
-
-  
-}
-
-
+/**
+ * Maneja el envío del formulario para agregar o actualizar un propietario.
+ * Utiliza AJAX para enviar los datos al servidor.
+ * @param {Event} event - El evento de envío del formulario.
+ */
 function enviarFormulario(event) {
-  event.preventDefault(); // Evita que se recargue la página
+  event.preventDefault();
 
-  // Ocultar mensajes previos
   document.getElementById("mensajeExito").classList.add("d-none");
   document.getElementById("mensajeError").classList.add("d-none");
 
-  // Obtener datos del formulario
   const form = event.target;
   const formData = new FormData(form);
   const modo = form.getAttribute("data-modo");
@@ -164,22 +143,19 @@ function enviarFormulario(event) {
   let method = "POST";
 
   if (modo === "editar" && idPropietarioEditando) {
-    url = `/editar/${idPropietarioEditando}`;
-    method = "POST"; // Flask puede usar POST en lugar de PUT para simplicidad
+    url = `/actualizar/${idPropietarioEditando}`;
+    method = "POST";
   }
 
-  // Deshabilitar botón mientras se envía
   const btnEnviar = event.target.querySelector('[type="submit"]');
   const textoOriginal = btnEnviar.innerHTML;
   btnEnviar.disabled = true;
-  btnEnviar.innerHTML =
-    '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
+  btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
 
-  // Enviar con AJAX
   fetch(url, {
-    method: method,
-    body: formData,
-  })
+      method: method,
+      body: formData,
+    })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Error en el servidor");
@@ -189,25 +165,120 @@ function enviarFormulario(event) {
     .then((data) => {
       if (data.success) {
         if (modo === "editar") {
-          console.log("Editar");
-          console.log(data.propietario);
-          // Lógica para actualizar la fila existente
           actualizarFilaTabla(idPropietarioEditando, data.propietario);
           document.getElementById("textoExito").textContent =
             "Propietario actualizado correctamente.";
         } else {
-          // Lógica para agregar una nueva fila
           agregarFilaTabla(data.propietario);
           document.getElementById("textoExito").textContent =
             "El propietario ha sido agregado correctamente.";
+          renumerarFilas();
+          actualizarTotalRegistros();
         }
 
         document.getElementById("mensajeExito").classList.remove("d-none");
         limpiarFormulario();
       } else {
-        document.getElementById("textoError").textContent =
-          data.error || "Error desconocido";
+        document.getElementById("textoError").textContent = data.error || "Error desconocido";
         document.getElementById("mensajeError").classList.remove("d-none");
+      }
+      setTimeout(() => {
+        document.getElementById("mensajeExito").classList.add("d-none");
+        document.getElementById("mensajeError").classList.add("d-none");
+      }, 3000);
+    })
+    .catch((error) => {
+      document.getElementById("textoError").textContent = error.message || "Error de conexión. Intente nuevamente.";
+      document.getElementById("mensajeError").classList.remove("d-none");
+      console.error("Error:", error);
+    })
+    .finally(() => {
+      btnEnviar.disabled = false;
+      btnEnviar.innerHTML = textoOriginal;
+    });
+}
+
+/**
+ * Agrega una nueva fila a la tabla con los datos del propietario.
+ * @param {object} propietario - El objeto con los datos del nuevo propietario.
+ */
+function agregarFilaTabla(propietario) {
+  const tabla = document.getElementById("tablaPropietarios").querySelector("tbody");
+  const fila = document.createElement("tr");
+
+  fila.innerHTML = `
+    <td class="numero-fila"></td>
+    <td scope="row">${propietario.codigo_id}</td>
+    <td>${propietario.nombre}</td>
+    <td>${propietario.apellido}</td>
+    <td>${propietario.dni}</td>
+    <td>${propietario.direccion}</td>
+    <td>
+      <button class="btn btn-sm btn-success" onclick="mostrarDetalles('${propietario.codigo_id}')">Ver</button>
+      <button class="btn btn-sm btn-primary" onclick="iniciarEdicion('${propietario.codigo_id}')">Editar</button>
+      <button class="btn btn-sm btn-danger" onclick="eliminarPropietario('${propietario.codigo_id}')">Eliminar</button>
+    </td>`;
+
+  tabla.appendChild(fila);
+}
+
+/**
+ * Actualiza una fila existente en la tabla con los nuevos datos.
+ * @param {string} id - El ID del propietario a actualizar.
+ * @param {object} datosActualizados - El objeto con los nuevos datos del propietario.
+ */
+function actualizarFilaTabla(id, datosActualizados) {
+  console.log(datosActualizados);
+  const filas = document.querySelectorAll("#tablaPropietarios tbody tr");
+  filas.forEach((fila) => {
+    const codigoIdCelda = fila.cells[1];
+    if (codigoIdCelda && codigoIdCelda.textContent == id) {
+      fila.cells[1].textContent = datosActualizados.codigo_id;
+      fila.cells[2].textContent = datosActualizados.nombre;
+      fila.cells[3].textContent = datosActualizados.apellido;
+      fila.cells[4].textContent = datosActualizados.dni;
+      fila.cells[5].textContent = datosActualizados.direccion;
+
+      const botones = fila.cells[6];
+      botones.innerHTML = `
+        <button class="btn btn-sm btn-success" onclick="mostrarDetalles('${datosActualizados.codigo_id}')">Ver</button>
+        <button class="btn btn-sm btn-primary" onclick="iniciarEdicion('${datosActualizados.codigo_id}')">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarPropietario('${datosActualizados.codigo_id}')">Eliminar</button>
+      `;
+    }
+  });
+}
+
+/**
+ * Elimina un registro de la base de datos y de la tabla HTML.
+ * @param {string} id - El ID del propietario a eliminar.
+ */
+function eliminarPropietario(id) {
+  if (confirm("¿Estás seguro de eliminar este registro?")) {
+    let url = `/eliminar/${id}`;
+    let method = "DELETE";
+    fetch(url, {
+      method: method,
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error en el servidor");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        const filaEliminar = document.querySelector(
+          `#tablaPropietarios tbody tr[data-id="${id}"]`
+        );
+        if (filaEliminar) {
+          filaEliminar.remove();
+          alert("Propietario eliminado");
+          renumerarFilas();
+          actualizarTotalRegistros();
+        }
+      } else {
+        alert(data.error || "Error al eliminar el propietario.");
       }
     })
     .catch((error) => {
@@ -215,49 +286,34 @@ function enviarFormulario(event) {
         error.message || "Error de conexión. Intente nuevamente.";
       document.getElementById("mensajeError").classList.remove("d-none");
       console.error("Error:", error);
-    })
-    .finally(() => {
-      // Rehabilitar botón
-      btnEnviar.disabled = false;
-      btnEnviar.innerHTML = textoOriginal;
     });
-}
-
-// Actualizar la fila de la tabla
-function actualizarFilaTabla(id, datosActualizados) {
-  console.log(datosActualizados);
-  const fila = document.querySelector(
-    `#tablaPropietarios tbody tr[data-id="${id}"]`
-  );
-  if (fila) {
-    fila.cells[1].textContent = datosActualizados.nombre;
-    fila.cells[2].textContent = datosActualizados.apellido;
-    fila.cells[3].textContent = datosActualizados.dni;
-    fila.cells[4].textContent = datosActualizados.direccion;
   }
 }
 
+/**
+ * Limpia los campos del formulario de agregar/editar.
+ */
 function limpiarFormulario() {
+  const editCodigoId = document.getElementById("edit-codigo-id");
   const addNombre = document.getElementById("edit-nombre");
   const addApellido = document.getElementById("edit-apellido");
   const addDni = document.getElementById("edit-dni");
   const addDireccion = document.getElementById("edit-direccion");
 
+  if (editCodigoId) editCodigoId.value = "";
   if (addNombre) addNombre.value = "";
   if (addApellido) addApellido.value = "";
   if (addDni) addDni.value = "";
   if (addDireccion) addDireccion.value = "";
 
-  // Remover clases de validación si las hay
   const form = document.querySelector("form");
   if (form) form.classList.remove("was-validated");
-
-  // Ocultar mensajes
-  // document.getElementById('mensajeExito').classList.add('d-none');
-  // document.getElementById('mensajeError').classList.add('d-none');
 }
 
-// Validación Bootstrap al enviar
+/**
+ * Habilita la validación nativa de Bootstrap para los formularios.
+ * Se ejecuta al cargar la página para detectar envíos inválidos.
+ */
 (function () {
   "use strict";
   window.addEventListener(
@@ -281,25 +337,3 @@ function limpiarFormulario() {
     false
   );
 })();
-
-function agregarFilaTabla(propietario) {
-  const tabla = document
-    .getElementById("tablaPropietarios")
-    .querySelector("tbody");
-  const fila = document.createElement("tr");
-
-  fila.innerHTML = `
-            <td scope="row">${propietario.codigo_id}</td>
-            <td>${propietario.nombre}</td>
-            <td>${propietario.apellido}</td>
-            <td>${propietario.dni}</td>
-            <td>${propietario.direccion}</td>
-            <td>
-                <button class="btn btn-sm btn-success" onclick="mostrarDetalles('${propietario.codigo_id}')">Ver</button>
-                <button class="btn btn-sm btn-primary">Editar</button>
-                <button class="btn btn-sm btn-danger">Eliminar</button>
-             </td>
-        `;
-
-  tabla.appendChild(fila);
-}

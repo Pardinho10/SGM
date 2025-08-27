@@ -29,6 +29,7 @@
                   <table class="table table-striped table-hover table-bordered w-100" id="tablaPropietarios">
                     <thead class="table-dark">
                       <tr>
+                        <th scope="col">N°</th>
                         <th scope="col">Codigo_id</th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Apellido</th>
@@ -40,7 +41,8 @@
                     <tbody>
                       {% for propietario in propietario %}
                       <tr data-id="{{propietario.codigo_id}}">
-                        <th scope="row">{{propietario.codigo_id}}</th>
+                        <td class="numero-fila">{{ loop.index }}</td>
+                        <td scope="row">{{propietario.codigo_id}}</td>
                         <td>{{propietario.nombre}}</td>
                         <td>{{propietario.apellido}}</td>
                         <td>{{propietario.dni}}</td>
@@ -58,7 +60,7 @@
                     </tbody>
                   </table>
                 </div>
-                <div>Total de Registros: {{total_prop}}</div>
+                <div>Total de Registros:<span id="total-registros"> {{total_prop}}</span></div>
       
       
                 <!-- Sección de detalles (inicialmente oculta) -->
@@ -100,6 +102,15 @@
                               <div class="card-body">
                                   <form id="formPropietario" method="POST" onsubmit="enviarFormulario(event)">
                                       {{forma.csrf_token}}
+                                      <!-- Campo Codigo_id -->
+                                      <div class="mb-3">
+      
+                                          {{forma.codigo_id.label(class="form-label")}} <span class="text-danger">*</span>
+                                          {{forma.codigo_id(class="form-control", id="edit-codigo-id")}}
+                                          <div class="invalid-feedback">
+                                              Por favor ingrese un codigo válido.
+                                          </div>
+                                      </div>                               
                                       <!-- Campo Nombre -->
                                       <div class="mb-3">
       

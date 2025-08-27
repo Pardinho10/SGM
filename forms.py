@@ -1,8 +1,9 @@
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import IntegerField, StringField, SubmitField
 
 class PropietarioForm(FlaskForm):
+    codigo_id = IntegerField('Código ID', validators=[DataRequired()])
     nombre = StringField('Nombre', validators=[DataRequired()])
     apellido = StringField('Apellido', validators=[DataRequired()])
     dni = StringField('Documento', validators=[DataRequired()])
